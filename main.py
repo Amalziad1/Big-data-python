@@ -6,39 +6,73 @@ import time
 
 
 
-def read_file(filename):
+def open_file(filename):
 
-    with open(filename, mode="r", newline="", encoding="utf-8") as csv_file:
+    csv_file=open(filename, mode="r")
 
-        csv_reader = csv.reader(csv_file)
+    csv_reader=csv_file.read()
 
-        for row_number, row in enumerate(csv_reader, start=1):
+    csv_reader.replace("\n",",")
 
-            yield row_number, row #returning row number and the whole row contents
+    arr=csv_reader.split(",")
 
-            
+    print(str(arr))
+
+    return arr
+
+    
+
+def read_file(arr):
+
+    max_cols=3
+
+    col=0
+
+    row=0
+
+    for cell in arr:
+
+        print(str(cell))
+
+        yield cell,row,col
+
+        col+=1	
+
+        if(col==max_cols):
+
+            col=0
+
+            row+=1
+
+    yield None, 0, 0
+
+        
 
 def printout(error_cells,color_counts):
 
-    if error_cells:
+    for (row, col) in error_cells:
 
-        for row_num, col_num in error_cells:
+        print(f"Found a broken cell in Row: {row}, Column: {col}")
 
-            print(f"Found a broken cell in row {row_num} col {col_num}")
+    print(f"Found: {color_counts.get('red')} red cells")    
 
-    for color, count in color_counts.items():
+    print(f"Found: {color_counts.get('blue')} blue cells")  
 
-        if color!="this is a broken cell":
+    print(f"Found: {color_counts.get('green')} green cells")    
 
-            print(f"Found: {count} {color} cells")    
+    print(f"Found: {color_counts.get('yellow')} yellow cells")  
 
-    print(f"Found: {len(error_cells)} broken cells")       
+    print(f"Found: {color_counts.get('black')} black cells")    
+
+    print(f"Found: {color_counts.get('white')} white cells")   
+
+    print(f"Found: {len(error_cells)} broken cells") 
+
+    
 
     
 
 start_time = time.time()#to measure execution time
-
-
 
 parser = argparse.ArgumentParser()
 
@@ -48,47 +82,51 @@ parser.add_argument("-error",required=True, default=None)#error condition to che
 
 args = parser.parse_args()
 
-    
-
 color_counts = {} 
 
 error_cells = []
 
 
 
-print("Reading CSV file\n")
+print("Reading CSV file")
+
+arr = open_file(args.filename)
 
 
 
-cells = ((row_number, col_number, cell)
-
-         for row_number, row in read_file(args.filename)
-
-         for col_number, cell in enumerate(row, start=1)) 
 
 
+while True:
 
-for row_num, col_num, cell in cells:
-
-    if args.error and args.error in cell: #if there is an error arg and if error arg specified is in cell (found a broken cell)
-
-        error_cells.append((row_num, col_num))
-
-    color = cell.lower() if cell else "empty" #to ensure that if user changed in csv content (for example entering colors in opper case)
-
-    color_counts[color] = color_counts.get(color, 0) + 1 #incrementing color count 
+    cell,row,col=read_file(arr).next()
 
 
 
-print("Done reading CSV file\n")
+    if cell is None: break
 
+    
 
+    print("from main --> " + str(cell))
+
+    
+
+    if str(args.error)==str(cell): #if there is an error arg and if error arg specified is in cell (found a broken cell)
+
+        error_cells.append((row, col))
+
+        continue
+
+        
+
+    color = cell.lower() 
+
+    color_counts[color] = color_counts.get(color, 0) + 1 #incrementing color count
+
+    
 
 #printing out the results
 
 printout(error_cells,color_counts)
-
-
 
 end_time = time.time()
 
