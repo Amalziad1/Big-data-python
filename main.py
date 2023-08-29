@@ -16,8 +16,6 @@ def open_file(filename):
 
     arr=csv_reader.split(",")
 
-    print(str(arr))
-
     return arr
 
     
@@ -31,8 +29,6 @@ def read_file(arr):
     row=0
 
     for cell in arr:
-
-        print(str(cell))
 
         yield cell,row,col
 
@@ -94,23 +90,17 @@ arr = open_file(args.filename)
 
 
 
+gen = read_file(arr)
+
 
 
 while True:
 
-    cell,row,col=read_file(arr).next()
-
-
+    cell,row,col=next(gen)
 
     if cell is None: break
 
     
-
-    print("from main --> " + str(cell))
-
-    
-
-    if str(args.error)==str(cell): #if there is an error arg and if error arg specified is in cell (found a broken cell)
 
         error_cells.append((row, col))
 
